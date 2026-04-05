@@ -190,7 +190,7 @@ export class Campaign implements ICampaign {
 
     // Priority: Retries that are ready
     const readyRetryIdx = this.retryCallsQueue.findIndex(
-      (r) => r.readyAt <= now
+      (r) => r.readyAt <= now,
     );
     if (readyRetryIdx !== -1) {
       const retry = this.retryCallsQueue.splice(readyRetryIdx, 1)[0];
@@ -207,11 +207,11 @@ export class Campaign implements ICampaign {
     // If we have retries but they aren't ready yet, schedule a wake-up
     if (this.retryCallsQueue.length > 0) {
       const earliestRetry = Math.min(
-        ...this.retryCallsQueue.map((r) => r.readyAt)
+        ...this.retryCallsQueue.map((r) => r.readyAt),
       );
       this.setSafeTimeout(
         () => this.tryStartCalls(),
-        earliestRetry - this.clock.now()
+        earliestRetry - this.clock.now(),
       );
     }
 
@@ -222,7 +222,9 @@ export class Campaign implements ICampaign {
     this.activeCalls++;
     this.callHandler(call.phoneNumber)
       .then((result) => this.onCallFinished(call, result))
-      .catch(() => this.onCallFinished(call, { answered: false, durationMs: 0 }));
+      .catch(() =>
+        this.onCallFinished(call, { answered: false, durationMs: 0 }),
+      );
   }
 
   private onCallFinished(call: InternalCall, result: CallResult) {
@@ -290,4 +292,3 @@ export class Campaign implements ICampaign {
     this.activeTimers.clear();
   }
 }
-
