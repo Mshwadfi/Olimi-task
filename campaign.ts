@@ -86,7 +86,7 @@ export class Campaign implements ICampaign {
       totalFailed: this.totalFailed,
       activeCalls: this.activeCalls,
       pendingRetries: this.retryCallsQueue.length,
-      dailyMinutesUsed: Math.floor(this.dailyMinutesUsed),
+      dailyMinutesUsed: Math.round(this.dailyMinutesUsed * 100) / 100,
     };
   }
 
@@ -235,7 +235,14 @@ export class Campaign implements ICampaign {
       this.handleFailure(call);
     }
 
-    this.tryStartCalls();
+    // Check completion BEFORE tryStartCalls to avoid being bypassed
+    // by early returns (e.g., outside working hours)
+    this.checkCompletion();
+
+    // Only try to start more calls if campaign is still running
+    if (this.state === "running") {
+      this.tryStartCalls();
+    }
   }
 
   private handleFailure(call: InternalCall) {
